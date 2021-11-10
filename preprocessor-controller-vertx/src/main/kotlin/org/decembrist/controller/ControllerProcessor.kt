@@ -5,20 +5,17 @@ import com.google.devtools.ksp.processing.*
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.validate
-import org.decembrist.TemplateEngine
-import org.decembrist.getAnnotationsOfType
-import org.decembrist.getArgumentValue
+import org.decembrist.RouterTemplateEngine
+import org.decembrist.preprocessors.utils.getAnnotationOfType
+import org.decembrist.preprocessors.utils.getArgumentValue
+import org.decembrist.preprocessors.utils.getFullClassName
+import org.decembrist.preprocessors.utils.getPackageName
 import org.decembrist.vertx.annotations.Controller
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 
-class ControllerProcessor : SymbolProcessor, KoinComponent {
-
-    private val templateEngine: TemplateEngine by inject()
-    private val codeGenerator: CodeGenerator by inject()
-    private val logger: KSPLogger by inject()
-    private val controllerVisitor: ControllerVisitor by inject()
-    private val routeVisitor: RouteVisitor by inject()
+class ControllerProcessor(
+    private val codeGenerator: CodeGenerator,
+    private val logger: KSPLogger,
+) : SymbolProcessor {
 
     override fun process(resolver: Resolver): List<KSAnnotated> {
         resolver.getSymbolsWithAnnotation(Controller::class.qualifiedName!!).forEach {
@@ -31,28 +28,30 @@ class ControllerProcessor : SymbolProcessor, KoinComponent {
     }
 
     private fun KSClassDeclaration.processController() {
-        val annotation = getAnnotationsOfType(Controller::class).first()
+        val annotation = getAnnotationOfType<Controller>()
+        checkModifiers()
+        val packageName = getPackageName()
+        val className = getFullClassName()
         val data = RouterData(
-            parentPath = annotation.getArgumentValue<String>(Controller::value.name)
+            parentPath = annotation.getArgumentValue(Controller::value.name),
+            packageName = packageName,
+            controllerClass = className,
+            routes = getRoutes()
         )
-        accept(controllerVisitor, data)
-        processRoutes(data)
-        val (packageName, className) = data
         val fileName = className + "Router"
         val file = codeGenerator.createNewFile(
             Dependencies(true, containingFile!!),
-            packageName.orEmpty(),
+            packageName,
             fileName
         )
-        templateEngine.renderRouter(file, data)
-        file.close()
+        RouterTemplateEngine(file).render(data)
         logger.info("$fileName was created", this)
     }
 
-    private fun KSClassDeclaration.processRoutes(data: RouterData) = getDeclaredFunctions().forEach {
-        if (it.validate()) {
-            it.accept(routeVisitor, data)
-        }
-    }
+    private fun KSClassDeclaration.getRoutes() = getDeclaredFunctions().flatMap { function ->
+        if (function.validate()) {
+            function.getRouteData()
+        } else emptyList()
+    }.toList()
 
 }

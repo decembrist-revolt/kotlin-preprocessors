@@ -17,14 +17,19 @@ repositories {
 }
 
 dependencies {
-    ksp(project(":preprocessor-controller-vertx"))
+    ksp(project(":preprocessors-combine"))
 
     testImplementation("io.vertx:vertx-web:$vertxVersion")
     testImplementation("io.vertx:vertx-lang-kotlin-coroutines:$vertxVersion")
     testImplementation("io.vertx:vertx-junit5:$vertxVersion")
     testImplementation(project(":preprocessor-controller-vertx"))
+    testImplementation(project(":preprocessor-dependency-injection"))
     testImplementation("org.junit.jupiter:junit-jupiter:$jupiterVersion")
     testImplementation("io.kotest:kotest-assertions-core-jvm:$kotestVersion")
+}
+
+ksp {
+    arg("rootPackage", "org.decembrist")
 }
 
 tasks.withType<Test> {

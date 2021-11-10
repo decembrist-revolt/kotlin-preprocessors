@@ -8,6 +8,7 @@ val kspVersion: String by project
 val isReleaseVersion = !(version as String).endsWith("SNAPSHOT")
 
 plugins {
+    id("java")
     kotlin("jvm")
     id("signing")
     id("maven-publish")
@@ -24,8 +25,8 @@ repositories {
 
 dependencies {
     implementation(kotlin("stdlib"))
-    implementation("io.insert-koin:koin-core:3.1.2")
     implementation("com.google.devtools.ksp:symbol-processing-api:$kspVersion")
+    implementation(project(":preprocessors-core"))
 
     testImplementation("com.github.tschuchortdev:kotlin-compile-testing-ksp:$kotlinCompileTestingVersion")
     testImplementation("io.vertx:vertx-web:$vertxVersion")

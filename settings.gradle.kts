@@ -1,2 +1,2 @@
 rootProject.name = "kotlin-preprocessors"
-include("preprocessor-controller-vertx")
+include("preprocessors-core", "preprocessor-controller-vertx", "preprocessor-dependency-injection", "preprocessors-combine")

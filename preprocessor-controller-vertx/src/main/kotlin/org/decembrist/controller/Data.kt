@@ -1,10 +1,10 @@
 package org.decembrist.controller
 
 data class RouterData(
-    var packageName: String? = null,
-    var controllerClass: String? = null,
-    val routes: MutableList<RouteData> = mutableListOf(),
     var parentPath: String,
+    var packageName: String,
+    var controllerClass: String,
+    val routes: List<RouteData> = emptyList(),
 )
 
 data class RouteData(
