@@ -1,7 +1,6 @@
 package org.decembrist.di
 
 import com.google.devtools.ksp.getConstructors
-import com.google.devtools.ksp.isPrivate
 import com.google.devtools.ksp.isPublic
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Resolver

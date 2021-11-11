@@ -5,8 +5,6 @@ val jupiterVersion: String by project
 val kotlinCompileTestingVersion: String by project
 val kspVersion: String by project
 
-val isReleaseVersion = !(version as String).endsWith("SNAPSHOT")
-
 plugins {
     id("java")
     kotlin("jvm")
@@ -14,6 +12,7 @@ plugins {
     id("maven-publish")
     id("java-library")
     id("org.jetbrains.dokka") version "1.5.30"
+    id("com.github.johnrengelman.shadow") version "7.1.0"
 }
 
 group = "org.decembrist"
@@ -38,10 +37,6 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
-//tasks.withType<Sign> {
-//    onlyIf { isReleaseVersion }
-//}
-
 val sourcesJar by tasks.creating(Jar::class) {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     archiveClassifier.set("sources")
@@ -59,15 +54,22 @@ signing {
     sign(extensions.getByType<PublishingExtension>().publications)
 }
 
+tasks.withType(com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar::class) {
+    dependencies {
+        include(project(":preprocessors-core"))
+    }
+    archiveClassifier.set("")
+}
+
 publishing {
     publications {
         create<MavenPublication>("shadow") {
             artifactId = "preprocessor-controller-vertx"
-            version = "1.0.0"
+            version = "1.0.1"
             description = "Code generation tool for vertx spring style controllers"
             artifact(sourcesJar)
             artifact(dokkaJavadocJar)
-            from(components["java"])
+            artifact(tasks["shadowJar"])
             pom {
                 name.set("Decembrist preprocessor controller vertx")
                 description.set("Code generation tool for vertx spring style controllers")
