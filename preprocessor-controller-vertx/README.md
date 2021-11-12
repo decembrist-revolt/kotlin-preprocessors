@@ -17,9 +17,9 @@ plugins {
 ```kotlin
 dependencies {
     // enable tool with ksp
-    ksp("org.decembrist:preprocessor-controller-vertx:1.0.0")
+    ksp("org.decembrist:preprocessor-controller-vertx:1.0.1")
     // annotations
-    implementation("org.decembrist:preprocessor-controller-vertx:1.0.0")
+    implementation("org.decembrist:preprocessor-controller-vertx:1.0.1")
     ...
     // add vertx web dependency to use
 }

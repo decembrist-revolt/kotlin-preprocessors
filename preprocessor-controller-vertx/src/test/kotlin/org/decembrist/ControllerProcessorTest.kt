@@ -3,11 +3,10 @@ package org.decembrist
 import com.tschuchort.compiletesting.*
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
-import org.junit.jupiter.api.AfterEach
+import org.decembrist.controller.BaseProcessorProvider
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
-import org.koin.core.context.GlobalContext
 import java.io.File
 
 class ControllerProcessorTest {
@@ -68,7 +67,7 @@ class ControllerProcessorTest {
         val compilation = setUpCompilation("StaticController1")
         val result = compilation.compile()
         result.exitCode shouldBe KotlinCompilation.ExitCode.COMPILATION_ERROR
-        result.messages shouldContain "You try to use @Controller on sub class: Parent.StaticController1"
+        result.messages shouldContain "You try to use @Controller on non top level class: Parent.StaticController1"
     }
 
     @Test
@@ -93,11 +92,6 @@ class ControllerProcessorTest {
         val result = compilation.compile()
         result.exitCode shouldBe KotlinCompilation.ExitCode.COMPILATION_ERROR
         result.messages shouldContain "Method testcase.input.MultipleMethodParamController.wrong() should have only one io.vertx.ext.web.RoutingContext parameter"
-    }
-
-    @AfterEach
-    fun tearDown() {
-        GlobalContext.stopKoin()
     }
 
     private fun setUpCompilation(fileName: String) = KotlinCompilation().apply {

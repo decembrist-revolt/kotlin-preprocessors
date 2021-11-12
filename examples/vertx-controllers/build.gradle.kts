@@ -11,10 +11,10 @@ repositories {
 }
 
 dependencies {
-    ksp("org.decembrist:preprocessor-controller-vertx:1.0.0")
+    ksp("org.decembrist:preprocessor-controller-vertx:1.0.1")
 
     implementation("io.vertx:vertx-web:4.1.5")
-    implementation("org.decembrist:preprocessor-controller-vertx:1.0.0")
+    implementation("org.decembrist:preprocessor-controller-vertx:1.0.1")
 }
 
 kotlin {
