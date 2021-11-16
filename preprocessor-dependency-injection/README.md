@@ -3,6 +3,8 @@
 Code generation tool for spring style dependency injection with **ZERO** new runtime dependencies for _Kotlin_  
 Tool uses **[Google KSP](https://github.com/google/ksp)** version 1.5.31-1.0.0
 
+[Example project](../examples/dependency-injection)
+
 ```kotlin
 @Injectable
 class Something

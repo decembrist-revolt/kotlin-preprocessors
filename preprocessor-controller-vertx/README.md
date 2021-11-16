@@ -3,6 +3,8 @@
 Code generation tool for [vertx (version 4+)](https://vertx.io/) spring style controllers with **ZERO** new runtime dependencies for _Kotlin_  
 Tool uses **[Google KSP](https://github.com/google/ksp)** version 1.5.31-1.0.0
 
+[Example project](../examples/vertx-controllers)
+
 ## Getting started:  
 `build.gradle.kts`
 ```kotlin

@@ -3,6 +3,7 @@ package org.decembrist.di
 import com.google.devtools.ksp.getConstructors
 import com.google.devtools.ksp.isPublic
 import com.google.devtools.ksp.processing.CodeGenerator
+import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.symbol.*
@@ -14,14 +15,15 @@ import org.decembrist.preprocessors.utils.*
 class DiProcessor(
     private val codeGenerator: CodeGenerator,
     private val options: Map<String, String>,
+    private val logger: KSPLogger,
 ) : SymbolProcessor {
 
     lateinit var context: Context
     lateinit var dependencyService: DependencyService
 
     override fun process(resolver: Resolver): List<KSAnnotated> {
-        context = Context(resolver)
-        dependencyService = DependencyService(context)
+        context = Context(resolver, logger)
+        dependencyService = DependencyService(context, logger)
         resolver.getSymbolsWithAnnotation(Injectable::class.qualifiedName!!).forEach { annotated ->
             if (annotated.validate()) {
                 when (annotated) {
@@ -36,7 +38,7 @@ class DiProcessor(
                 dependencies = context.getDependencies(),
                 options = ContextDataOptions(options[ROOT_PACKAGE] ?: ""),
             )
-            ContextFilesGenerator(codeGenerator, contextData).generate()
+            ContextFilesGenerator(codeGenerator, contextData, logger).generate()
         }
 
         return emptyList()

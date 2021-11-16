@@ -11,9 +11,9 @@ repositories {
 }
 
 dependencies {
-    ksp("org.decembrist:preprocessor-dependency-injection:1.0.1")
+    ksp("org.decembrist:preprocessor-dependency-injection:1.0.2")
 
-    implementation("org.decembrist:preprocessor-dependency-injection:1.0.1")
+    implementation("org.decembrist:preprocessor-dependency-injection:1.0.2")
 }
 
 kotlin {

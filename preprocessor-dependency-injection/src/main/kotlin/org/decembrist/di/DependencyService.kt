@@ -1,12 +1,17 @@
 package org.decembrist.di
 
-class DependencyService(private val context: Context) {
+import com.google.devtools.ksp.processing.KSPLogger
+
+class DependencyService(
+    private val context: Context,
+    private val logger: KSPLogger
+) {
 
     fun resolveDependencies() {
         context.getDependencies().forEach { dependency ->
             dependency.resolveInjected()
             val isResolved = dependency.injected.all { it.dependency.resolved }
-            if (isResolved) {
+            if (isResolved && !dependency.resolved) {
                 context.markResolved(dependency)
             }
         }

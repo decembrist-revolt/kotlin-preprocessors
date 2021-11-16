@@ -1,9 +1,13 @@
 package org.decembrist.di
 
+import com.google.devtools.ksp.processing.KSPLogger
 import org.decembrist.preprocessors.generator.AbstractTemplateEngine
 import java.io.OutputStream
 
-class ContextTemplateEngine(file: OutputStream) : AbstractTemplateEngine<ContextData>(file) {
+class ContextTemplateEngine(
+    file: OutputStream,
+    private val logger: KSPLogger,
+) : AbstractTemplateEngine<ContextData>(file) {
 
     override fun renderBody(data: ContextData) {
         writePackageLine(data.options.rootPackage)

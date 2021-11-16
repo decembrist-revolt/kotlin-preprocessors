@@ -2,10 +2,12 @@ package org.decembrist.di
 
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
+import com.google.devtools.ksp.processing.KSPLogger
 
 class ContextFilesGenerator(
     private val codeGenerator: CodeGenerator,
     private val contextData: ContextData,
+    private val logger: KSPLogger,
 ) {
 
     fun generate() {
@@ -20,7 +22,7 @@ class ContextFilesGenerator(
             rootPackage,
             CONTEXT_FILENAME
         )
-        ContextTemplateEngine(file).render(contextData)
+        ContextTemplateEngine(file, logger).render(contextData)
     }
 
     companion object {

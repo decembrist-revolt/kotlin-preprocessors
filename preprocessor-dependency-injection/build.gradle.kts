@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.ir.backend.js.compile
-
 val kotestVersion: String by project
 val jupiterVersion: String by project
 val kotlinCompileTestingVersion: String by project
@@ -64,7 +62,7 @@ publishing {
     publications {
         create<MavenPublication>("shadow") {
             artifactId = "preprocessor-dependency-injection"
-            version = "1.0.1"
+            version = "1.0.2"
             description = "Code generation tool for dependency injection"
             artifact(sourcesJar)
             artifact(dokkaJavadocJar)

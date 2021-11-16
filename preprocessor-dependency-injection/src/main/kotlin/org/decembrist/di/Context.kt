@@ -2,6 +2,7 @@ package org.decembrist.di
 
 import com.google.devtools.ksp.getClassDeclarationByName
 import com.google.devtools.ksp.getConstructors
+import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
@@ -10,7 +11,10 @@ import com.google.devtools.ksp.symbol.Variance
 import org.decembrist.di.annotations.Inject
 import org.decembrist.preprocessors.utils.*
 
-class Context(private val resolver: Resolver) {
+class Context(
+    private val resolver: Resolver,
+    private val logger: KSPLogger,
+) {
     private val data = linkedMapOf<String, Dependency>()
 
     /* Map(type, superTypes) */
@@ -39,7 +43,7 @@ class Context(private val resolver: Resolver) {
                 name = dependencyName,
                 file = clazz.containingFile!!,
                 resolved = isResolved,
-                order = if (isResolved) order++ else -1
+                order = if (isResolved) order++ else EMPTY_ORDER
             )
         }
     }
@@ -117,5 +121,6 @@ class Context(private val resolver: Resolver) {
 
     companion object {
         val RESTRICTED_TYPES = arrayOf("kotlin.Any", "java.lang.Object")
+        val EMPTY_ORDER = -1
     }
 }
