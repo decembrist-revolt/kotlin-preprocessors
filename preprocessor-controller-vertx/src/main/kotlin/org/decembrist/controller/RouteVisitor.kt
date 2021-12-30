@@ -28,12 +28,14 @@ fun KSFunctionDeclaration.getRouteData(): List<RouteData> {
     } else emptyList()
 }
 
-private fun KSAnnotation.getPathArgument(funcName: String) =
-    getArgumentValue<String>(REQUEST::path.name)
+private fun KSAnnotation.getPathArgument(funcName: String): String {
+    val path = getArgumentValue<String>(REQUEST::path.name)
         .takeIf { it.isNotBlank() } ?: error(
         "Annotation @${shortName.asString()} has empty path argument " +
                 "for method ${funcName}()"
     )
+    return if (path == "/") "" else path
+}
 
 private fun KSFunctionDeclaration.getMethodAnnotations(): List<KSAnnotation> =
     ROUTE_ANNOTATIONS.flatMap { getAnnotationsOfType(it) }

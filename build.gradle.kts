@@ -4,8 +4,8 @@ val jupiterVersion: String by project
 val kotestVersion: String by project
 
 plugins {
-    kotlin("jvm") version "1.5.31"
-    id("com.google.devtools.ksp") version "1.5.31-1.0.0"
+    kotlin("jvm") version "1.6.10"
+    id("com.google.devtools.ksp") version "1.6.10-1.0.2"
     id("io.github.gradle-nexus.publish-plugin") version "1.1.0"
 }
 

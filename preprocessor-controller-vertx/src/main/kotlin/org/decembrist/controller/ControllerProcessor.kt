@@ -1,7 +1,11 @@
 package org.decembrist.controller
 
 import com.google.devtools.ksp.getDeclaredFunctions
-import com.google.devtools.ksp.processing.*
+import com.google.devtools.ksp.processing.CodeGenerator
+import com.google.devtools.ksp.processing.Dependencies
+import com.google.devtools.ksp.processing.KSPLogger
+import com.google.devtools.ksp.processing.Resolver
+import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.validate
@@ -32,11 +36,13 @@ class ControllerProcessor(
         checkModifiers()
         val packageName = getPackageName()
         val className = getFullClassName()
+        val parentPath = annotation.getArgumentValue<String>(Controller::value.name)
+        val routes = getRoutes()
         val data = RouterData(
-            parentPath = annotation.getArgumentValue(Controller::value.name),
+            parentPath = parentPath,
             packageName = packageName,
             controllerClass = className,
-            routes = getRoutes()
+            routes = routes
         )
         val fileName = className + "Router"
         val file = codeGenerator.createNewFile(
@@ -48,7 +54,7 @@ class ControllerProcessor(
         logger.info("$fileName was created", this)
     }
 
-    private fun KSClassDeclaration.getRoutes() = getDeclaredFunctions().flatMap { function ->
+    private fun KSClassDeclaration.getRoutes(): List<RouteData> = getDeclaredFunctions().flatMap { function ->
         if (function.validate()) {
             function.getRouteData()
         } else emptyList()

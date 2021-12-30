@@ -11,6 +11,7 @@ import io.vertx.junit5.VertxExtension
 import io.vertx.junit5.VertxTestContext
 import org.decembrist.vertx.annotations.Controller
 import org.decembrist.vertx.annotations.GET
+import org.decembrist.vertx.annotations.POST
 import org.decembrist.vertx.annotations.REQUEST
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -26,6 +27,7 @@ class GeneratedRouterTest {
         val router = Router.router(vertx)
         router.mountSubRouter("/", TestController1().asRouter(vertx))
         router.mountSubRouter("/", TestController2().asRouter(vertx))
+        router.mountSubRouter("/", TestController3().asRouter(vertx))
         val socket = ServerSocket(0)
         socket.reuseAddress = true
         val port = socket.localPort
@@ -47,6 +49,14 @@ class GeneratedRouterTest {
                     }
                 client
                     .request(HttpMethod.PUT, server.actualPort(), host, "/path")
+                    .compose(HttpClientRequest::send)
+                    .compose(HttpClientResponse::body)
+                    .onComplete { result ->
+                        result.result().toString() shouldBe "REQUEST PUT OK"
+                        checkpoint.flag()
+                    }
+                client
+                    .request(HttpMethod.POST, server.actualPort(), host, "/")
                     .compose(HttpClientRequest::send)
                     .compose(HttpClientResponse::body)
                     .onComplete { result ->
@@ -75,5 +85,13 @@ class TestController2 {
     @REQUEST(method = ["PUT"], path = "/path")
     fun request(ctx: RoutingContext) {
         ctx.response().send("REQUEST PUT OK")
+    }
+}
+
+@Controller
+class TestController3 {
+    @POST
+    fun request(ctx: RoutingContext) {
+        ctx.response().send("REQUEST POST OK")
     }
 }

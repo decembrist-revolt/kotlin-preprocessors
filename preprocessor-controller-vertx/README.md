@@ -1,7 +1,7 @@
 # Preprocessor controller vertx
 
 Code generation tool for [vertx (version 4+)](https://vertx.io/) spring style controllers with **ZERO** new runtime dependencies for _Kotlin_  
-Tool uses **[Google KSP](https://github.com/google/ksp)** version 1.5.31-1.0.0
+Tool uses **[Google KSP](https://github.com/google/ksp)** version 1.6.10-1.0.2
 
 [Example project](../examples/vertx-controllers)
 
@@ -10,18 +10,18 @@ Tool uses **[Google KSP](https://github.com/google/ksp)** version 1.5.31-1.0.0
 ```kotlin
 plugins {  
     // or whatever kotlin you want
-    kotlin("jvm") version "1.5.31"
+    kotlin("jvm") version "1.6.10"
     // google ksp
-    id("com.google.devtools.ksp") version "1.5.31-1.0.0"
+    id("com.google.devtools.ksp") version "1.6.10-1.0.2"
 }
 ```
 
 ```kotlin
 dependencies {
     // enable tool with ksp
-    ksp("org.decembrist:preprocessor-controller-vertx:1.0.1")
+    ksp("org.decembrist:preprocessor-controller-vertx:1.0.2")
     // annotations
-    implementation("org.decembrist:preprocessor-controller-vertx:1.0.1")
+    implementation("org.decembrist:preprocessor-controller-vertx:1.0.2")
     ...
     // add vertx web dependency to use
 }
@@ -87,8 +87,8 @@ fun main() {
 Start application and GET Request for http://localhost:80/parent/hello returns _Hello World_  
 Check [example project](../examples/vertx-controllers)
 
-Tested kotlin version 1.5.31  
-Tested vertx version 4.1.5  
+Tested kotlin version 1.6.10  
+Tested vertx version 4.2.2  
 
 ### Possible annotations:  
 Mark top level class as controller  

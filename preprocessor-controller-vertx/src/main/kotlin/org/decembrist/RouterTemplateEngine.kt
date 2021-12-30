@@ -5,7 +5,7 @@ import org.decembrist.controller.RouterData
 import org.decembrist.preprocessors.generator.AbstractTemplateEngine
 import java.io.OutputStream
 
-class RouterTemplateEngine(file: OutputStream): AbstractTemplateEngine<RouterData>(file) {
+class RouterTemplateEngine(file: OutputStream) : AbstractTemplateEngine<RouterData>(file) {
 
     override fun renderBody(data: RouterData) = with(data) {
         writePackageLine(packageName)
@@ -34,14 +34,16 @@ class RouterTemplateEngine(file: OutputStream): AbstractTemplateEngine<RouterDat
             .map { route ->
                 if (data.parentPath.isNotBlank()) {
                     route.copy(path = combinePaths(data.parentPath, route.path))
-                } else {
-                    route
-                }
-            }
-            .forEach { route -> renderRoute(route) }
+                } else if (route.path == "") {
+                    route.copy(path = "/")
+                } else route
+            }.forEach { route -> renderRoute(route) }
     }
 
-    private fun combinePaths(path1: String, path2: String) = "/${path1.trim('/')}/${path2.trim('/')}"
+    private fun combinePaths(parentPath: String, path2: String): String {
+        val correctParentPath = "/" + parentPath.trim('/')
+        return if (path2 == "") correctParentPath else "$correctParentPath/${path2.trim('/')}"
+    }
 
     private fun renderRoute(route: RouteData): Unit = with(route) {
         write { """    router.route("$path")""" }

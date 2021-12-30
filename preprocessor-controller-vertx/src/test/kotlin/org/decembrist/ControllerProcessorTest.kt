@@ -27,7 +27,7 @@ class ControllerProcessorTest {
 
     @Test
     fun `should generate router base path success`() {
-        val compilation = setUpCompilation("BasePathController")
+        val compilation = setUpCompilation("BasePathController1")
         val result = compilation.compile()
         result.exitCode shouldBe KotlinCompilation.ExitCode.OK
         val ktFiles = compilation.kspSourcesDir.walkTopDown()
@@ -35,7 +35,20 @@ class ControllerProcessorTest {
             .toList()
         ktFiles.size shouldBe 1
         ktFiles.first().readText().replace("\r", "") shouldBe
-                File("$TESTCASE_FOLDER/$OUTPUT/BasePathControllerRouter.kt").readText().replace("\r", "")
+                File("$TESTCASE_FOLDER/$OUTPUT/BasePathController1Router.kt").readText().replace("\r", "")
+    }
+
+    @Test
+    fun `should generate router without base path success`() {
+        val compilation = setUpCompilation("BasePathController2")
+        val result = compilation.compile()
+        result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+        val ktFiles = compilation.kspSourcesDir.walkTopDown()
+            .filter { it.extension == "kt" }
+            .toList()
+        ktFiles.size shouldBe 1
+        ktFiles.first().readText().replace("\r", "") shouldBe
+                File("$TESTCASE_FOLDER/$OUTPUT/BasePathController2Router.kt").readText().replace("\r", "")
     }
 
     @Test
