@@ -42,7 +42,8 @@ class ControllerProcessor(
             parentPath = parentPath,
             packageName = packageName,
             controllerClass = className,
-            routes = routes
+            routes = routes,
+            bodyHandler = routes.any { it.bodyHandler.enabled }
         )
         val fileName = className + "Router"
         val file = codeGenerator.createNewFile(

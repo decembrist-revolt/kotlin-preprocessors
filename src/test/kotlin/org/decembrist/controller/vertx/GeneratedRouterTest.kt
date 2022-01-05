@@ -9,6 +9,7 @@ import io.vertx.ext.web.Router
 import io.vertx.ext.web.RoutingContext
 import io.vertx.junit5.VertxExtension
 import io.vertx.junit5.VertxTestContext
+import org.decembrist.vertx.annotations.BodyHandler
 import org.decembrist.vertx.annotations.Controller
 import org.decembrist.vertx.annotations.GET
 import org.decembrist.vertx.annotations.POST
@@ -28,6 +29,7 @@ class GeneratedRouterTest {
         router.mountSubRouter("/", TestController1().asRouter(vertx))
         router.mountSubRouter("/", TestController2().asRouter(vertx))
         router.mountSubRouter("/", TestController3().asRouter(vertx))
+        router.mountSubRouter("/", TestController4().asRouter(vertx))
         val socket = ServerSocket(0)
         socket.reuseAddress = true
         val port = socket.localPort
@@ -63,6 +65,14 @@ class GeneratedRouterTest {
                         result.result().toString() shouldBe "REQUEST PUT OK"
                         checkpoint.flag()
                     }
+                client
+                    .request(HttpMethod.POST, server.actualPort(), host, "/")
+                    .compose { request -> request.send("hello") }
+                    .compose(HttpClientResponse::body)
+                    .onComplete { result ->
+                        result.result().toString() shouldBe "REQUEST PUT OK hello"
+                        checkpoint.flag()
+                    }
             }
         testContext.awaitCompletion(5, TimeUnit.SECONDS) shouldBe true
         if (testContext.failed()) throw testContext.causeOfFailure()
@@ -93,5 +103,13 @@ class TestController3 {
     @POST
     fun request(ctx: RoutingContext) {
         ctx.response().send("REQUEST POST OK")
+    }
+}
+
+@Controller
+class TestController4 {
+    @POST(bodyHandler = BodyHandler(true))
+    fun request(ctx: RoutingContext) {
+        ctx.response().send("REQUEST POST OK ${ctx.bodyAsString}")
     }
 }

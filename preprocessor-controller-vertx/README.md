@@ -19,9 +19,9 @@ plugins {
 ```kotlin
 dependencies {
     // enable tool with ksp
-    ksp("org.decembrist:preprocessor-controller-vertx:1.0.2")
+    ksp("org.decembrist:preprocessor-controller-vertx:1.0.3")
     // annotations
-    implementation("org.decembrist:preprocessor-controller-vertx:1.0.2")
+    compileOnly("org.decembrist:preprocessor-controller-vertx:1.0.3")
     ...
     // add vertx web dependency to use
 }
@@ -88,45 +88,69 @@ Start application and GET Request for http://localhost:80/parent/hello returns _
 Check [example project](../examples/vertx-controllers)
 
 Tested kotlin version 1.6.10  
-Tested vertx version 4.2.2  
+Tested vertx version 4.2.2
 
-### Possible annotations:  
+### Possible annotations:
+
 Mark top level class as controller  
-_@Controller(*parent path)_ 
+_@Controller(*parent path)_
 
 For multiple methods you could use REQUEST annotation  
-_@REQUEST([methods], _path_)_
+_@REQUEST([methods], _path_, _bodyHandler_)_
 
-### All method annotations are repeatable  
-_@ALL(path)_  
-_@OPTIONS(path)_  
-_@GET(path)_  
-_@HEAD(path)_  
-_@POST(path)_  
-_@PUT(path)_  
-_@DELETE(path)_  
-_@TRACE(path)_  
-_@CONNECT(path)_  
-_@PATCH(path)_  
-_@PROPFIND(path)_  
-_@PROPPATCH(path)_  
-_@MKCOL(path)_  
-_@COPY(path)_  
-_@MOVE(path)_  
-_@LOCK(path)_  
-_@UNLOCK(path)_  
-_@MKCALENDAR(path)_  
-_@VERSION_CONTROL(path)_  
-_@REPORT(path)_  
-_@CHECKIN(path)_  
-_@CHECKOUT(path)_  
-_@UNCHECKOUT(path)_  
-_@MKWORKSPACE(path)_  
-_@UPDATE(path)_  
-_@LABEL(path)_  
-_@MERGE(path)_  
-_@BASELINE_CONTROL(path)_  
-_@MKACTIVITY(path)_  
-_@ORDERPATCH(path)_  
-_@ACL(path)_  
-_@SEARCH(path)_  
+### Body handler
+
+To enable BodyHandler for route you can use bodyHandler param
+
+```kotlin
+@GET("/hello", bodyHandler = BodyHandler(true))
+fun hello(ctx: RoutingContext) {
+    val bodyContent = ctx.bodyAsString
+    ...
+}
+```
+
+Generated code
+
+```kotlin
+router.route("/hello")
+    .method(HttpMethod("GET"))
+    .method(HttpMethod("POST"))
+    .handler(BodyHandler.create())
+    .handler(this::hello)
+```
+
+### All method annotations are repeatable
+
+_@ALL(path, bodyHandler)_  
+_@OPTIONS(path, bodyHandler)_  
+_@GET(path, bodyHandler)_  
+_@HEAD(path, bodyHandler)_  
+_@POST(path, bodyHandler)_  
+_@PUT(path, bodyHandler)_  
+_@DELETE(path, bodyHandler)_  
+_@TRACE(path, bodyHandler)_  
+_@CONNECT(path, bodyHandler)_  
+_@PATCH(path, bodyHandler)_  
+_@PROPFIND(path, bodyHandler)_  
+_@PROPPATCH(path, bodyHandler)_  
+_@MKCOL(path, bodyHandler)_  
+_@COPY(path, bodyHandler)_  
+_@MOVE(path, bodyHandler)_  
+_@LOCK(path, bodyHandler)_  
+_@UNLOCK(path, bodyHandler)_  
+_@MKCALENDAR(path, bodyHandler)_  
+_@VERSION_CONTROL(path, bodyHandler)_  
+_@REPORT(path, bodyHandler)_  
+_@CHECKIN(path, bodyHandler)_  
+_@CHECKOUT(path, bodyHandler)_  
+_@UNCHECKOUT(path, bodyHandler)_  
+_@MKWORKSPACE(path, bodyHandler)_  
+_@UPDATE(path, bodyHandler)_  
+_@LABEL(path, bodyHandler)_  
+_@MERGE(path, bodyHandler)_  
+_@BASELINE_CONTROL(path, bodyHandler)_  
+_@MKACTIVITY(path, bodyHandler)_  
+_@ORDERPATCH(path, bodyHandler)_  
+_@ACL(path, bodyHandler)_  
+_@SEARCH(path, bodyHandler)_  

@@ -33,3 +33,8 @@ fun <A : Annotation, T> KSAnnotation.getArgumentValue(property: KProperty1<A, T>
 
 @Suppress("UNCHECKED_CAST")
 fun <T> KSAnnotation.getArgumentValue(name: String) = arguments.first { it.name!!.asString() == name }.value as T
+
+fun KSAnnotation.getAnnotationArgumentAsMap(name: String): Map<String, Any?> =
+    arguments.first { it.name!!.asString() == name }
+        .run { value as KSAnnotation }
+        .run { arguments.associate { it.name!!.getShortName() to it.value } }

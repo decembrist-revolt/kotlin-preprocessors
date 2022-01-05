@@ -1,6 +1,10 @@
 package org.decembrist
 
-import com.tschuchort.compiletesting.*
+import com.tschuchort.compiletesting.KotlinCompilation
+import com.tschuchort.compiletesting.SourceFile
+import com.tschuchort.compiletesting.kspIncremental
+import com.tschuchort.compiletesting.kspSourcesDir
+import com.tschuchort.compiletesting.symbolProcessorProviders
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import org.decembrist.controller.BaseProcessorProvider
@@ -49,6 +53,19 @@ class ControllerProcessorTest {
         ktFiles.size shouldBe 1
         ktFiles.first().readText().replace("\r", "") shouldBe
                 File("$TESTCASE_FOLDER/$OUTPUT/BasePathController2Router.kt").readText().replace("\r", "")
+    }
+
+    @Test
+    fun `should generate router with body handler success`() {
+        val compilation = setUpCompilation("BodyHandlerController")
+        val result = compilation.compile()
+        result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+        val ktFiles = compilation.kspSourcesDir.walkTopDown()
+            .filter { it.extension == "kt" }
+            .toList()
+        ktFiles.size shouldBe 1
+        ktFiles.first().readText().replace("\r", "") shouldBe
+                File("$TESTCASE_FOLDER/$OUTPUT/BodyHandlerControllerRouter.kt").readText().replace("\r", "")
     }
 
     @Test

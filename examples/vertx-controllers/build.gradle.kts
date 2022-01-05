@@ -1,6 +1,6 @@
 plugins {
-    kotlin("jvm") version "1.5.31"
-    id("com.google.devtools.ksp") version "1.5.31-1.0.0"
+    kotlin("jvm") version "1.6.10"
+    id("com.google.devtools.ksp") version "1.6.10-1.0.2"
 }
 
 group = "org.decembrist"
@@ -11,10 +11,10 @@ repositories {
 }
 
 dependencies {
-    ksp("org.decembrist:preprocessor-controller-vertx:1.0.1")
+    ksp("org.decembrist:preprocessor-controller-vertx:1.0.3")
 
-    implementation("io.vertx:vertx-web:4.1.5")
-    implementation("org.decembrist:preprocessor-controller-vertx:1.0.1")
+    implementation("io.vertx:vertx-web:4.2.2")
+    compileOnly("org.decembrist:preprocessor-controller-vertx:1.0.3")
 }
 
 kotlin {

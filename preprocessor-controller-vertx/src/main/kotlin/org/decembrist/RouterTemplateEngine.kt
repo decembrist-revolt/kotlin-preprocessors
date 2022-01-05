@@ -9,17 +9,21 @@ class RouterTemplateEngine(file: OutputStream) : AbstractTemplateEngine<RouterDa
 
     override fun renderBody(data: RouterData) = with(data) {
         writePackageLine(packageName)
-        write {
+        writeLine {
             """      
             |import io.vertx.core.Vertx
             |import io.vertx.ext.web.Router
             |import io.vertx.core.http.HttpMethod
+            """.trimMargin()
+        }
+        if (data.bodyHandler) writeLine { "import io.vertx.ext.web.handler.BodyHandler" }
+        writeLine {
+            """
             |
             |fun ${controllerClass}.asRouter(vertx: Vertx): Router {
             |    val router = Router.router(vertx)
             """.trimMargin()
         }
-        nextLine()
         renderRoutes(data)
         write {
             """
@@ -46,14 +50,14 @@ class RouterTemplateEngine(file: OutputStream) : AbstractTemplateEngine<RouterDa
     }
 
     private fun renderRoute(route: RouteData): Unit = with(route) {
-        write { """    router.route("$path")""" }
-        nextLine()
+        writeLine { """    router.route("$path")""" }
         for (method in methods) {
-            write { """        .method(HttpMethod("$method"))""" }
-            nextLine()
+            writeLine { """        .method(HttpMethod("$method"))""" }
         }
-        write { """        .handler(this::$methodName)""" }
-        nextLine()
+        if (route.bodyHandler.enabled) {
+            writeLine { """        .handler(BodyHandler.create())""" }
+        }
+        writeLine { """        .handler(this::$methodName)""" }
     }
 
 

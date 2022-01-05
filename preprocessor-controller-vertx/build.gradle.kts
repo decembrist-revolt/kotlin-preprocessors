@@ -65,7 +65,7 @@ publishing {
     publications {
         create<MavenPublication>("shadow") {
             artifactId = "preprocessor-controller-vertx"
-            version = "1.0.2"
+            version = "1.0.3"
             description = "Code generation tool for vertx spring style controllers"
             artifact(sourcesJar)
             artifact(dokkaJavadocJar)

@@ -1,24 +1,66 @@
 package org.decembrist.controller
 
-import com.google.devtools.ksp.symbol.*
-import org.decembrist.preprocessors.utils.*
-import org.decembrist.vertx.annotations.*
+import com.google.devtools.ksp.symbol.KSAnnotation
+import com.google.devtools.ksp.symbol.KSFunctionDeclaration
+import org.decembrist.preprocessors.utils.getAnnotationArgumentAsMap
+import org.decembrist.preprocessors.utils.getAnnotationsOfType
+import org.decembrist.preprocessors.utils.getArgumentValue
+import org.decembrist.preprocessors.utils.getFullName
+import org.decembrist.preprocessors.utils.getSimpleName
+import org.decembrist.vertx.annotations.ACL
+import org.decembrist.vertx.annotations.ALL
+import org.decembrist.vertx.annotations.BASELINE_CONTROL
+import org.decembrist.vertx.annotations.BodyHandler
+import org.decembrist.vertx.annotations.CHECKIN
+import org.decembrist.vertx.annotations.CHECKOUT
+import org.decembrist.vertx.annotations.CONNECT
+import org.decembrist.vertx.annotations.COPY
+import org.decembrist.vertx.annotations.DELETE
+import org.decembrist.vertx.annotations.GET
+import org.decembrist.vertx.annotations.HEAD
+import org.decembrist.vertx.annotations.LABEL
+import org.decembrist.vertx.annotations.LOCK
+import org.decembrist.vertx.annotations.MERGE
+import org.decembrist.vertx.annotations.MKACTIVITY
+import org.decembrist.vertx.annotations.MKCALENDAR
+import org.decembrist.vertx.annotations.MKCOL
+import org.decembrist.vertx.annotations.MKWORKSPACE
+import org.decembrist.vertx.annotations.MOVE
+import org.decembrist.vertx.annotations.OPTIONS
+import org.decembrist.vertx.annotations.ORDERPATCH
+import org.decembrist.vertx.annotations.PATCH
+import org.decembrist.vertx.annotations.POST
+import org.decembrist.vertx.annotations.PROPFIND
+import org.decembrist.vertx.annotations.PROPPATCH
+import org.decembrist.vertx.annotations.PUT
+import org.decembrist.vertx.annotations.REPORT
+import org.decembrist.vertx.annotations.REQUEST
+import org.decembrist.vertx.annotations.SEARCH
+import org.decembrist.vertx.annotations.TRACE
+import org.decembrist.vertx.annotations.UNCHECKOUT
+import org.decembrist.vertx.annotations.UNLOCK
+import org.decembrist.vertx.annotations.UPDATE
+import org.decembrist.vertx.annotations.VERSION_CONTROL
 
 fun KSFunctionDeclaration.getRouteData(): List<RouteData> {
     val methodRoutes: List<RouteData> = getMethodAnnotations().map { methodAnnotation ->
-        val path = methodAnnotation.getPathArgument(getFullName())
+        val path: String = methodAnnotation.getPathArgument(getFullName())
+        val bodyHandler: BodyHandler = methodAnnotation.getBodyHandlerArgument()
         RouteData(
             path = path,
             methodName = getSimpleName(),
             methods = listOf(methodAnnotation.shortName.asString()),
+            bodyHandler = bodyHandler,
         )
     }
     val requestRoutes: Sequence<RouteData> = getAnnotationsOfType<REQUEST>().map { requestAnnotation ->
-        val path = requestAnnotation.getPathArgument(getFullName())
+        val path: String = requestAnnotation.getPathArgument(getFullName())
+        val bodyHandler: BodyHandler = requestAnnotation.getBodyHandlerArgument()
         RouteData(
             path = path,
             methodName = getSimpleName(),
             methods = requestAnnotation.getArgumentValue(REQUEST::method.name),
+            bodyHandler = bodyHandler,
         )
     }
     val routes: List<RouteData> = methodRoutes + requestRoutes
@@ -35,6 +77,11 @@ private fun KSAnnotation.getPathArgument(funcName: String): String {
                 "for method ${funcName}()"
     )
     return if (path == "/") "" else path
+}
+
+private fun KSAnnotation.getBodyHandlerArgument(): BodyHandler {
+    val bodyHandler: Map<String, Any?> = getAnnotationArgumentAsMap(REQUEST::bodyHandler.name)
+    return BodyHandler(enabled = bodyHandler[BodyHandler::enabled.name] as Boolean)
 }
 
 private fun KSFunctionDeclaration.getMethodAnnotations(): List<KSAnnotation> =
