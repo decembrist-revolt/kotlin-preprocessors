@@ -44,6 +44,7 @@ class DependencyService(
         for (injected in injected) {
             injected.dependency = if (injected.name != null) {
                 val dependency = context[injected.name]
+                    ?: injected.asExternalDependency()
                     ?: throw NamedDependencyNotFoundError(injected.name, injected.type, type)
                 if (!dependency.isSubtypeOf(injected.type)) {
                     throw NamedDependencyWrongTypeError(injected.name, injected.type, type)
@@ -53,7 +54,9 @@ class DependencyService(
                 context[injected.type]
                     ?: findDependencyByType(injected.type)
                     ?: findDependencyBySuperType(injected.type)
+                    ?: injected.asExternalDependency()
                     ?: throw DependencyNotFoundError(injected.type, type)
+
             }
         }
     }
@@ -72,6 +75,13 @@ class DependencyService(
         return dependencies.firstOrNull()?.also { dependency ->
             context[searchType] = dependency
         }
+    }
+
+    private fun Injected.asExternalDependency(): Dependency? {
+        val result: Dependency? = if (external != false) ExternalDependency(type, name ?: type) else null
+        if (external == null)
+            logger.warn("Implicit external dependency $type, declare @External annotation explicitly")
+        return result
     }
 
     private fun Dependency.isSubtypeOf(type: String): Boolean =

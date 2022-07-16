@@ -2,6 +2,8 @@ package org.decembrist.di
 
 import com.google.devtools.ksp.symbol.Modifier
 
+class MalformedInjectableError(type: String) : RuntimeException("Type $type couldn't be resolved")
+
 class NamedDependencyNotFoundError(name: String, type: String, targetType: String) :
     RuntimeException("Named @Injectable with name [$name] and type $type not found for class $targetType")
 
@@ -37,3 +39,8 @@ class AmbiguousConstructorError(type: String) :
 
 class GenericInjectedError(type: String) :
     RuntimeException("Non STAR generic types as @Injectable param not supported yet, use <*> instead: $type")
+
+class GenericInjectableError(type: String) : RuntimeException("Generic @Injectable not supported: $type<...>")
+
+class GenericInjectableFuncError(type: String) :
+    RuntimeException("Generic @Injectable func not supported: $type<...>()")

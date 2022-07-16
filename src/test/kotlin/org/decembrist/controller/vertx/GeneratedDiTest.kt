@@ -1,5 +1,6 @@
 package org.decembrist.controller.vertx
 
+import org.decembrist.di.annotations.External
 import org.decembrist.di.annotations.Inject
 import org.decembrist.di.annotations.Injectable
 import org.decembrist.getInstance
@@ -10,7 +11,9 @@ class GeneratedDiTest {
 
     @Test
     fun `success path`() {
-        val controller = getInstance<SomeController>()
+        val controller = getInstance<SomeController>(
+            parentContext = mapOf(SomeService5::class.qualifiedName!! to SomeService5())
+        )
         controller.someService1 === getInstance<SomeService1>()
         controller.someService2 === getInstance<SomeService2>()
         controller.someService1.someRepository === getInstance<SomeRepository>()
@@ -31,6 +34,8 @@ class SomeController(
     val someService3: Service<*>,
     @Inject("service2")
     val someService4: Service<*>,
+    @External
+    val someService5: SomeService5,
 )
 
 @Injectable
@@ -42,10 +47,12 @@ class SomeService2(val config: SomeConfig)
 interface Service<T>
 
 @Injectable("service1")
-class SomeService3: Service<SomeService3>
+class SomeService3 : Service<SomeService3>
 
 @Injectable("service2")
-class SomeService4: Service<SomeService4>
+class SomeService4 : Service<SomeService4>
+
+class SomeService5
 
 @Injectable
 class SomeRepository(val config: SomeConfig)

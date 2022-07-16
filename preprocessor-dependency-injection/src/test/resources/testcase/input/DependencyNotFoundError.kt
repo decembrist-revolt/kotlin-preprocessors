@@ -1,8 +1,9 @@
 package testcase.input
 
+import org.decembrist.di.annotations.External
 import org.decembrist.di.annotations.Injectable
 
 interface IInjected
 
 @Injectable
-class NoInjected(injeced: IInjected)
+class NoInjected(@External(false) injeced: IInjected)

@@ -16,7 +16,7 @@ class ContextFilesGenerator(
 
     private fun generateRoot() {
         val rootPackage = contextData.options.rootPackage
-        val files = contextData.dependencies.map(Dependency::file).distinct().toTypedArray()
+        val files = contextData.dependencies.mapNotNull(Dependency::file).distinct().toTypedArray()
         val file = codeGenerator.createNewFile(
             Dependencies(true, *files),
             rootPackage,

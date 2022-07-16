@@ -6,11 +6,24 @@ import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
-import com.google.devtools.ksp.symbol.*
-import com.google.devtools.ksp.symbol.Modifier.*
+import com.google.devtools.ksp.symbol.ClassKind
+import com.google.devtools.ksp.symbol.KSAnnotated
+import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSFunctionDeclaration
+import com.google.devtools.ksp.symbol.KSModifierListOwner
+import com.google.devtools.ksp.symbol.KSNode
+import com.google.devtools.ksp.symbol.Modifier
+import com.google.devtools.ksp.symbol.Modifier.ABSTRACT
+import com.google.devtools.ksp.symbol.Modifier.PRIVATE
+import com.google.devtools.ksp.symbol.Modifier.SUSPEND
 import com.google.devtools.ksp.validate
 import org.decembrist.di.annotations.Injectable
-import org.decembrist.preprocessors.utils.*
+import org.decembrist.preprocessors.utils.findFirstModifierOrNull
+import org.decembrist.preprocessors.utils.getAnnotationOfType
+import org.decembrist.preprocessors.utils.getArgumentValue
+import org.decembrist.preprocessors.utils.getFullClassName
+import org.decembrist.preprocessors.utils.getFullName
+import org.decembrist.preprocessors.utils.isTopLevel
 
 class DiProcessor(
     private val codeGenerator: CodeGenerator,
@@ -30,7 +43,7 @@ class DiProcessor(
                     is KSClassDeclaration -> annotated.processInjectable()
                     is KSFunctionDeclaration -> annotated.processInjectable()
                 }
-            }
+            } else throw MalformedInjectableError(annotated.toString())
         }
         if (context.size > 0) {
             dependencyService.resolveDependencies()
@@ -46,6 +59,7 @@ class DiProcessor(
 
     private fun KSClassDeclaration.processInjectable() {
         val className = getFullClassName()
+        if (typeParameters.isNotEmpty()) throw GenericInjectableError(className)
         checkTopLevel(className)
         if (classKind != ClassKind.CLASS) throw WrongInjectableTargetError(classKind.type, className)
         checkModifiers(className, PRIVATE, ABSTRACT)
@@ -58,8 +72,10 @@ class DiProcessor(
     }
 
     private fun KSFunctionDeclaration.processInjectable() {
-        checkTopLevel(getFullName())
-        checkModifiers(getFullName(), PRIVATE, SUSPEND)
+        val fullName = getFullName()
+        if (typeParameters.isNotEmpty()) throw GenericInjectableFuncError(fullName)
+        checkTopLevel(fullName)
+        checkModifiers(fullName, PRIVATE, SUSPEND)
         val dependencyName = getDependencyName()
         context.addNew(this, dependencyName)
     }

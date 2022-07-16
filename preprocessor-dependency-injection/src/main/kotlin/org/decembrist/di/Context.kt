@@ -1,15 +1,22 @@
 package org.decembrist.di
 
+import com.google.devtools.ksp.findActualType
 import com.google.devtools.ksp.getClassDeclarationByName
 import com.google.devtools.ksp.getConstructors
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
+import com.google.devtools.ksp.symbol.KSTypeAlias
 import com.google.devtools.ksp.symbol.KSValueParameter
 import com.google.devtools.ksp.symbol.Variance
+import org.decembrist.di.annotations.External
 import org.decembrist.di.annotations.Inject
-import org.decembrist.preprocessors.utils.*
+import org.decembrist.preprocessors.utils.getAnnotationOfTypeOrNull
+import org.decembrist.preprocessors.utils.getArgumentValue
+import org.decembrist.preprocessors.utils.getClassName
+import org.decembrist.preprocessors.utils.getFullClassName
+import org.decembrist.preprocessors.utils.getFullName
 
 class Context(
     private val resolver: Resolver,
@@ -96,7 +103,9 @@ class Context(
     }
 
     private fun Resolver.getSuperTypes(className: String): List<String> {
-        val ksClass = getClassDeclarationByName(className) ?: error("Class [$className] not found")
+        val ksClass = getClassDeclarationByName(className)
+            ?: classNameDictionary[className]?.let(::getClassDeclarationByName)
+            ?: error("Class [$className] not found")
         return ksClass.superTypes
             .map { it.getClassName() }
             .flatMap { getSuperTypes(it) + it }
@@ -107,15 +116,22 @@ class Context(
         val type = param.type
         val name = param.getAnnotationOfTypeOrNull<Inject>()
             ?.getArgumentValue(Inject::name)
-            ?.takeIf { it.isNotBlank() }
+            ?.takeIf(String::isNotBlank)
         val typeArguments = type.element!!.typeArguments
         if (typeArguments.any { it.variance != Variance.STAR }) {
             throw GenericInjectedError(type.getClassName()
                     + typeArguments.joinToString(prefix = "<", postfix = ">") { it.toString() })
         }
+        val declaration = type.resolve().declaration
+        val className = if (declaration is KSTypeAlias) {
+            declaration.findActualType().getFullClassName()
+        } else {
+            declaration.getClassName()
+        }
         Injected(
             name = name,
-            type = type.getClassName(),
+            type = className,
+            external = param.getAnnotationOfTypeOrNull<External>()?.getArgumentValue(External::value)
         )
     }
 

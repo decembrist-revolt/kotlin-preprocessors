@@ -1,6 +1,11 @@
 package org.decembrist.di
 
-import com.tschuchort.compiletesting.*
+import com.tschuchort.compiletesting.KotlinCompilation
+import com.tschuchort.compiletesting.SourceFile
+import com.tschuchort.compiletesting.kspArgs
+import com.tschuchort.compiletesting.kspIncremental
+import com.tschuchort.compiletesting.kspSourcesDir
+import com.tschuchort.compiletesting.symbolProcessorProviders
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import org.decembrist.di.DiProcessor.Companion.ROOT_PACKAGE
@@ -18,7 +23,8 @@ class DiProcessorTest {
             .filter { it.extension == "kt" }
             .toList()
         ktFiles.size shouldBe 1
-        ktFiles.first().readText().replace("\r", "") shouldBe
+        val context = ktFiles.first().readText().replace("\r", "")
+        context shouldBe
                 File("$TESTCASE_FOLDER/$OUTPUT/SimpleInjectable.kt").readText().replace("\r", "")
     }
 
@@ -33,7 +39,8 @@ class DiProcessorTest {
             .filter { it.extension == "kt" }
             .toList()
         ktFiles.size shouldBe 1
-        ktFiles.first().readText().replace("\r", "") shouldBe
+        val context = ktFiles.first().readText().replace("\r", "")
+        context shouldBe
                 File("$TESTCASE_FOLDER/$OUTPUT/SimpleInjectableWithoutPackage.kt").readText().replace("\r", "")
     }
 
@@ -45,6 +52,26 @@ class DiProcessorTest {
         val result = compilation.compile()
         result.exitCode shouldBe KotlinCompilation.ExitCode.COMPILATION_ERROR
         result.messages shouldContain "org.decembrist.di.NamedDependencyNotFoundError: Named @Injectable with name [notFound] and type testcase.input.IInjectable not found for class testcase.input.SimpleClass"
+    }
+
+    @Test
+    fun `generic injectable error`() {
+        val compilation = setUpCompilation("GenericInjectableError").apply {
+            kspArgs = mutableMapOf(ROOT_PACKAGE to "testcase.output")
+        }
+        val result = compilation.compile()
+        result.exitCode shouldBe KotlinCompilation.ExitCode.COMPILATION_ERROR
+        result.messages shouldContain "org.decembrist.di.GenericInjectableError: Generic @Injectable not supported: testcase.input.Service<...>"
+    }
+
+    @Test
+    fun `generic injectable func error`() {
+        val compilation = setUpCompilation("GenericInjectableFuncError").apply {
+            kspArgs = mutableMapOf(ROOT_PACKAGE to "testcase.output")
+        }
+        val result = compilation.compile()
+        result.exitCode shouldBe KotlinCompilation.ExitCode.COMPILATION_ERROR
+        result.messages shouldContain "org.decembrist.di.GenericInjectableFuncError: Generic @Injectable func not supported: testcase.input.service<...>()"
     }
 
     @Test

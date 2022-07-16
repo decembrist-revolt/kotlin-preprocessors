@@ -1,9 +1,43 @@
 package testcase.output
 
-import kotlin.reflect.KFunction
+val diContext: Map<String, Any> get() = if (contextBuilt) _diContext else emptyMap()
+var contextBuilt = false
 
-val diContext: Map<String, Any> by lazy {
-    val data = mutableMapOf<String, Any>()
+private lateinit var _diContext: Map<String, Any>
+
+/**
+ * @param name T class qualifiedName by default (if @Injectable name was not specified)
+ * @return injectable by name
+ */
+@Suppress("UNCHECKED_CAST")
+inline fun <reified T : Any> getInstance(
+    name: String = T::class.qualifiedName!!,
+    parentContext: Map<String, Any>? = null
+): T {
+    val instance = resolveInstance<T>(name, parentContext)
+    return getOrInvoke(name, instance)
+}
+
+fun <T> resolveInstance(name: String, parentContext: Map<String, Any>? = null): Any? {
+    if (!contextBuilt) {
+        _diContext = buildContext(parentContext ?: emptyMap())
+        contextBuilt = true
+    }
+    return diContext[name]
+}
+
+inline fun <reified T : Any> getOrInvoke(name: String, instance: Any?): T {
+    instance ?: throw RuntimeException("@Injectable by name $name not found")
+    return if (instance !is T) (instance as (() -> T))() else instance
+}
+
+/**
+ * Build dependencies map (could be used as parent context)
+ */
+fun buildContext(parentContext: Map<String, Any> = emptyMap()): Map<String, Any> {
+    val data = parentContext.toMutableMap()
+    val StringList = StringList()
+    data["StringList"] = StringList
     val SimpleInjectable1 = SimpleInjectable1()
     data["SimpleInjectable1"] = SimpleInjectable1
     val simpleInjectable2 = SimpleInjectable2()
@@ -15,20 +49,20 @@ val diContext: Map<String, Any> by lazy {
     val SimpleInjectable5 = SimpleInjectable5()
     data["SimpleInjectable5"] = SimpleInjectable5
     data["SimpleInjectable6"] = { injectableFunction(SimpleInjectable5) }
-    val Composition1 = Composition1(SimpleInjectable1, simpleInjectable2, simpleInjectable3, SimpleInjectable4, SimpleInjectable5, injectableFunction(SimpleInjectable5))
+    val Composition1 = Composition1(
+        SimpleInjectable1,
+        simpleInjectable2,
+        simpleInjectable3,
+        SimpleInjectable4,
+        SimpleInjectable5,
+        injectableFunction(SimpleInjectable5),
+        getOrInvoke<SimpleInjectable7>("SimpleInjectable7", data["SimpleInjectable7"]),
+        getOrInvoke<SimpleInjectable7>("SimpleInjectable7", data["SimpleInjectable7"]),
+        getOrInvoke<java.util.ArrayList>("java.util.ArrayList", data["java.util.ArrayList"])
+    )
     data["Composition1"] = Composition1
     val Composition2 = Composition2(Composition1)
     data["Composition2"] = Composition2
-    data
+    return data
 }
 
-/**
- * @param name T class qualifiedName by default (if @Injectable name was not specified)
- * @return injectable by name
- */
-inline fun <reified T: Any> getInstance(name: String = T::class.qualifiedName!!): T {
-    val instance = diContext[name] ?: throw RuntimeException("@Injectable by name $name not found")
-    return if (instance !is T) {
-        (instance as (() -> T))()
-    } else instance
-}

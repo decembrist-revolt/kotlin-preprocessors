@@ -1,6 +1,6 @@
 plugins {
-    kotlin("jvm") version "1.7.10"
-    id("com.google.devtools.ksp") version "1.7.10-1.0.6"
+    kotlin("jvm")
+    id("com.google.devtools.ksp")
 }
 
 group = "org.decembrist"
@@ -15,11 +15,16 @@ dependencies {
     ksp("org.decembrist:preprocessor-dependency-injection:1.0.3")
     implementation(project(":external-library"))
 
-    compileOnly("org.decembrist:preprocessor-dependency-injection:1.0.2")
+    compileOnly("org.decembrist:preprocessor-dependency-injection:1.0.3")
 }
 
 kotlin {
     sourceSets.main {
         kotlin.srcDir("build/generated/ksp/main/kotlin")
     }
+}
+
+ksp {
+    // to specify generated Context.kt file package (default: root package)
+    arg("rootPackage", "org.decembrist")
 }

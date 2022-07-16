@@ -15,6 +15,7 @@ plugins {
 
 repositories {
     mavenCentral()
+    mavenLocal()
 }
 
 group = "org.decembrist"
@@ -62,7 +63,7 @@ publishing {
     publications {
         create<MavenPublication>("shadow") {
             artifactId = "preprocessor-dependency-injection"
-            version = "1.0.2"
+            version = "1.0.3"
             description = "Code generation tool for dependency injection"
             artifact(sourcesJar)
             artifact(dokkaJavadocJar)

@@ -11,6 +11,11 @@ data class ContextDataOptions(
     val rootPackage: String,
 )
 
+class ExternalDependency(
+    type: String,
+    name: String? = null,
+) : Dependency(type, emptyList(), name = name, resolved = true)
+
 class FunctionalDependency(
     type: String,
     superTypes: List<String>,
@@ -27,14 +32,19 @@ open class Dependency(
     val superTypes: List<String>,
     val injected: List<Injected> = emptyList(),
     var name: String? = null,
-    val file: KSFile,
+    val file: KSFile? = null,
     var resolved: Boolean = false,
     var order: Int = -1,
-)
+) {
+    override fun toString() = "$type(${injected.joinToString(", ")})"
+}
 
 data class Injected(
     val type: String,
     val name: String? = null,
+    val external: Boolean? = null,
 ) {
     lateinit var dependency: Dependency
+
+    override fun toString() = if (name != null) "$name: $type" else type
 }
